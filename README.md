@@ -11,6 +11,34 @@ cluster, in a network you bring. Image: `ghcr.io/captf-io/gcp-cluster`. Used
 by a `TerraformCluster`; contract:
 <https://captf.io/docs/module-author/contract/v1alpha1/cluster.html>.
 
+## Usage
+
+CAPTF runs this module from the module image `ghcr.io/captf-io/gcp-cluster`: set the image on
+a `TerraformCluster`'s `spec.source.image`, and the controller renders every
+input. The module is also published to the Terraform Registry as
+`captf-io/cluster/google` and can be called directly:
+
+```hcl
+module "cluster" {
+  source  = "captf-io/cluster/google"
+  version = "~> 0.1"
+
+  # The contract inputs the controller would render (captf_contract,
+  # captf_cluster, captf_object, captf_tags, ...; see Inputs), and any
+  # user variables.
+}
+```
+
+Called directly, the module is a CAPTF root module first:
+
+- it configures its own `provider "google"` block, so the calling
+  module cannot use `count`, `for_each` or `depends_on` on it, and the
+  provider takes its credentials from the environment (see Identity
+  Secret);
+- its providers are pinned to exact versions (`versions.tf`), which the
+  calling configuration has to accept;
+- you set the `captf_*` inputs yourself.
+
 ## What it creates
 
 | Resource | Type | When |
@@ -49,7 +77,7 @@ is itself behind (`cluster.md` "Hairpin reachability"). An internal
 passthrough load balancer routes a backend's packets to the forwarding
 rule's address back to the backend itself, so a joining node would reach
 its own, not yet running, API server. A proxy opens a new connection to a
-healthy backend. See [DESIGN.md](DESIGN.md) decision 1.
+healthy backend. See [DESIGN.md](https://github.com/captf-io/terraform-google-cluster/blob/main/DESIGN.md) decision 1.
 
 ## Prerequisites
 
@@ -174,7 +202,7 @@ becomes an environment variable of the Job and a file under
 
 Alternatively, a `credentials.json` key plus
 `GOOGLE_APPLICATION_CREDENTIALS=/var/run/captf/credentials/credentials.json`.
-See [examples/identity.yaml](examples/identity.yaml).
+See [examples/identity.yaml](https://github.com/captf-io/terraform-google-cluster/blob/main/examples/identity.yaml).
 
 ## Tags
 
@@ -245,7 +273,7 @@ backends, which are unhealthy during every control-plane bring-up):
 
 ## Examples
 
-[examples/cluster-kubeadm.yaml](examples/cluster-kubeadm.yaml) creates a
+[examples/cluster-kubeadm.yaml](https://github.com/captf-io/terraform-google-cluster/blob/main/examples/cluster-kubeadm.yaml) creates a
 TerraformCluster with this image:
 
 ```yaml

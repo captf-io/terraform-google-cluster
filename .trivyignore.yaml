@@ -1,0 +1,53 @@
+# Copyright 2026 The CAPTF Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# trivy ignore file for `make scan` (trivy config). Every ignore needs a
+# statement that says why the finding is acceptable (CONVENTIONS.md
+# section 15), and paths so it cannot hide the same finding elsewhere.
+#
+# The node-to-node rule matches its sources by service account
+# (source_service_accounts) and sets no source_ranges. trivy reads a rule
+# without source_ranges as open to 0.0.0.0/0, so it reports the rule as
+# public; it is not: only instances that run as the cluster's node service
+# accounts match it.
+misconfigurations:
+  - id: GCP-0027
+    paths:
+      - node_internal_firewall.tf
+    statement: >-
+      False positive: the rule's sources are the cluster's node service
+      accounts (source_service_accounts), not any IP address.
+  - id: GCP-0071
+    paths:
+      - node_internal_firewall.tf
+    statement: >-
+      False positive: SSH is reachable only from the cluster's own nodes
+      (source_service_accounts), never from the internet.
+  - id: GCP-0072
+    paths:
+      - node_internal_firewall.tf
+    statement: >-
+      Every port between nodes is intended: etcd, kubelet, NodePorts and
+      whatever ports and protocols the chosen CNI uses (VXLAN, IP-in-IP,
+      BGP, WireGuard). The rule is limited to the cluster's node service
+      accounts on both ends.
+  - id: GCP-0073
+    paths:
+      - node_internal_firewall.tf
+    statement: >-
+      False positive: this is not a default-network rule; it is the
+      cluster's own node-to-node rule, limited to its node service accounts.
+  # The machine's instance sets block-project-ssh-keys and enable-oslogin to
+  # TRUE in a merge() with the bootstrap metadata, which trivy cannot
+  # evaluate; it then reports the keys as unset.

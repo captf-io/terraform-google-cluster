@@ -37,7 +37,7 @@ variable "additional_tags" {
 }
 
 variable "api_allowed_cidrs" {
-  description = "Client CIDRs allowed to reach the public API endpoint, enforced by a Cloud Armor policy. Required when api_load_balancer_public is true; include the Cloud NAT egress addresses so nodes can reach the endpoint."
+  description = "Client CIDRs allowed to reach the public API endpoint, enforced by a Cloud Armor policy. Required when api_load_balancer_public is true; include the Cloud NAT egress addresses so nodes can reach the endpoint. A /0 prefix (0.0.0.0/0, ::/0) is rejected: it would make the endpoint world-open."
   type        = list(string)
   default     = []
   nullable    = false
@@ -45,6 +45,10 @@ variable "api_allowed_cidrs" {
   validation {
     condition     = alltrue([for c in var.api_allowed_cidrs : can(cidrhost(c, 0))])
     error_message = "api_allowed_cidrs must hold CIDR blocks such as 203.0.113.0/24."
+  }
+  validation {
+    condition     = alltrue([for c in var.api_allowed_cidrs : try(tonumber(split("/", c)[1]) > 0, true)])
+    error_message = "api_allowed_cidrs must not hold a /0 prefix such as 0.0.0.0/0 or ::/0: it would open the public API endpoint to the whole internet. List the client networks and the Cloud NAT egress addresses that need access instead; the list is only consulted with api_load_balancer_public, so leave it empty for the internal endpoint."
   }
 }
 

@@ -154,6 +154,22 @@ run "invalid_api_allowed_cidrs" {
   expect_failures = [var.api_allowed_cidrs]
 }
 
+run "invalid_api_allowed_cidrs_world_open" {
+  command = plan
+  variables {
+    api_allowed_cidrs = ["203.0.113.0/24", "0.0.0.0/0"]
+  }
+  expect_failures = [var.api_allowed_cidrs]
+}
+
+run "invalid_api_allowed_cidrs_world_open_ipv6" {
+  command = plan
+  variables {
+    api_allowed_cidrs = ["::/0"]
+  }
+  expect_failures = [var.api_allowed_cidrs]
+}
+
 run "invalid_control_plane_roles" {
   command = plan
   variables {

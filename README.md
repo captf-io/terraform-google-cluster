@@ -34,13 +34,13 @@ bring, it creates the API load balancer, the firewall rules and the node
 identities of one Cluster API cluster. Contract:
 <https://captf.io/docs/module-author/contract/v1alpha1/cluster.html>.
 
-This repository holds the module code. The image `ghcr.io/captf-io/gcp-cluster`
-is published from
-[captf-io/gcp-modules](https://github.com/captf-io/gcp-modules).
+This repository holds the module code. The image `ghcr.io/captf-io/module-images/gcp-cluster`
+is built and published by
+[module-images](https://github.com/captf-io/module-images) from this repository's releases.
 
 ## Using it
 
-CAPTF runs this module from the module image `ghcr.io/captf-io/gcp-cluster`: set
+CAPTF runs this module from the module image `ghcr.io/captf-io/module-images/gcp-cluster`: set
 the image on a `TerraformCluster`'s `spec.source.image`, and the controller
 renders every input. The module is also published to the Terraform Registry as
 `captf-io/cluster/google` and can be called directly:
@@ -310,7 +310,7 @@ metadata:
   name: demo
 spec:
   source:
-    image: ghcr.io/captf-io/gcp-cluster:v0.1.0-opentofu
+    image: ghcr.io/captf-io/module-images/gcp-cluster:v0.1.0-opentofu
   identityRef:
     name: gcp
   variables:

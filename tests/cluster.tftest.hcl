@@ -29,28 +29,16 @@ mock_provider "google" {
 
   mock_data "google_compute_subnetworks" {
     defaults = {
-      subnetworks = [
-        {
-          description              = ""
-          ip_cidr_range            = "10.129.0.0/23"
-          name                     = "captf-proxy-only"
-          network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/captf-vpc"
-          network_name             = "captf-vpc"
-          network_self_link        = "captf-vpc"
-          private_ip_google_access = false
-          self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/captf-proxy-only"
-        },
-        {
-          description              = "another network's proxy-only subnet"
-          ip_cidr_range            = "10.200.0.0/23"
-          name                     = "other-proxy-only"
-          network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/other-vpc"
-          network_name             = "other-vpc"
-          network_self_link        = "other-vpc"
-          private_ip_google_access = false
-          self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/other-proxy-only"
-        },
-      ]
+      subnetworks = [{
+        description              = ""
+        ip_cidr_range            = "10.0.0.0/20"
+        name                     = "captf-nodes"
+        network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/captf-vpc"
+        network_name             = "captf-vpc"
+        network_self_link        = "captf-vpc"
+        private_ip_google_access = true
+        self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/captf-nodes"
+      }]
     }
   }
 
@@ -73,20 +61,34 @@ mock_provider "google" {
   }
 }
 
-# The node subnetwork listing; the mock's default is the proxy-only listing.
+# The proxy-only subnet listing; the mock's default is the node listing, so
+# the runs that change it override node_subnetworks without shadowing a
+# file-level override.
 override_data {
-  target = data.google_compute_subnetworks.node_subnetworks
+  target = data.google_compute_subnetworks.proxy_subnetworks
   values = {
-    subnetworks = [{
-      description              = ""
-      ip_cidr_range            = "10.0.0.0/20"
-      name                     = "captf-nodes"
-      network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/captf-vpc"
-      network_name             = "captf-vpc"
-      network_self_link        = "captf-vpc"
-      private_ip_google_access = true
-      self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/captf-nodes"
-    }]
+    subnetworks = [
+      {
+        description              = ""
+        ip_cidr_range            = "10.129.0.0/23"
+        name                     = "captf-proxy-only"
+        network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/captf-vpc"
+        network_name             = "captf-vpc"
+        network_self_link        = "captf-vpc"
+        private_ip_google_access = false
+        self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/captf-proxy-only"
+      },
+      {
+        description              = "another network's proxy-only subnet"
+        ip_cidr_range            = "10.200.0.0/23"
+        name                     = "other-proxy-only"
+        network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/other-vpc"
+        network_name             = "other-vpc"
+        network_self_link        = "other-vpc"
+        private_ip_google_access = false
+        self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/other-proxy-only"
+      },
+    ]
   }
 }
 

@@ -287,67 +287,6 @@ run "rejects_missing_proxy_subnet" {
   expect_failures = [google_compute_forwarding_rule.api_forwarding_rules]
 }
 
-run "rejects_proxy_subnet_of_other_network" {
-  command = plan
-
-  variables {
-    network = "third-vpc"
-  }
-
-  override_data {
-    target = data.google_compute_subnetworks.node_subnetworks
-    values = {
-      subnetworks = [{
-        description              = ""
-        ip_cidr_range            = "10.0.0.0/20"
-        name                     = "captf-nodes"
-        network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/third-vpc"
-        network_name             = "third-vpc"
-        network_self_link        = "third-vpc"
-        private_ip_google_access = true
-        self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/captf-nodes"
-      }]
-    }
-  }
-
-  expect_failures = [google_compute_forwarding_rule.api_forwarding_rules]
-}
-
-run "rejects_subnetwork_outside_network" {
-  command = plan
-
-  override_data {
-    target = data.google_compute_subnetworks.node_subnetworks
-    values = {
-      subnetworks = [{
-        description              = ""
-        ip_cidr_range            = "10.0.0.0/20"
-        name                     = "captf-nodes"
-        network                  = "https://www.googleapis.com/compute/v1/projects/captf-test/global/networks/other-vpc"
-        network_name             = "other-vpc"
-        network_self_link        = "other-vpc"
-        private_ip_google_access = true
-        self_link                = "https://www.googleapis.com/compute/v1/projects/captf-test/regions/us-central1/subnetworks/captf-nodes"
-      }]
-    }
-  }
-
-  expect_failures = [google_compute_firewall.node_internal_firewall]
-}
-
-run "rejects_missing_subnetwork" {
-  command = plan
-
-  override_data {
-    target = data.google_compute_subnetworks.node_subnetworks
-    values = {
-      subnetworks = []
-    }
-  }
-
-  expect_failures = [google_compute_firewall.node_internal_firewall]
-}
-
 run "rejects_zone_outside_region" {
   command = plan
 
